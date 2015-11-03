@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Globalization;
-using System.Windows.Media.Animation;
-
-namespace ImageShrinker
+﻿namespace UWPAssetGenerator.App
 {
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using System.Windows.Media;
+    using System.Windows.Media.Animation;
+    using System.Windows.Media.Imaging;
+    using System.Windows.Shapes;
+
     /// <summary>
     /// Window1.xaml の相互作用ロジック
     /// </summary>
     public partial class Window1 : Window
     {
-        public Window1()
-        {
-            InitializeComponent();
-        }
-
-        #region InitializeText
+        private readonly Rectangle rectFrame = new Rectangle();
         private string notice1 = "Trim area to be Icon by Mouse";
         private string notice2 = "Click [Save Icons] button if satisfied";
         private string notice3 = "Created folder and Save Completed";
@@ -30,14 +24,24 @@ namespace ImageShrinker
         private string openFolder = "Icons with same project name are already exist, please change your project name";
         private string notice4 = "Please load .PNG or .JPG";
         private string notice5 = "Fail to make icons, Trim area to be Icon by Mouse";
-        private bool IsPasted = false;
-        private bool IsJapanese = false;
+        private bool isPasted;
+        private bool isJapanese;
+        private string fileName;
+        private BitmapImage imageSource;
+        private double scale = 1.0;
+        private Point p1;
+        private Point p2;
+
+        public Window1()
+        {
+            InitializeComponent();
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (CultureInfo.CurrentUICulture.Name == "ja-JP" || App.Language == "Japanese") IsJapanese = true;
-            if (App.Language == "English") IsJapanese = false;
-            if (IsJapanese)
+            if (CultureInfo.CurrentUICulture.Name == "ja-JP" || App.Language == "Japanese") isJapanese = true;
+            if (App.Language == "English") isJapanese = false;
+            if (isJapanese)
             {
                 Save.Content = "アイコン保存";
                 Open.Content = "画像を開く";
@@ -47,14 +51,11 @@ namespace ImageShrinker
                 notice2 = "気に入ったら[アイコン保存]ボタンをクリック";
                 notice3 = "フォルダーを作成し、保存しました";
                 notice4 = "PNG ファイルか JPG ファイルをロードしてください";
-                notice5 = "アイコン作成に失敗、"+notice1;
+                notice5 = "アイコン作成に失敗、" + notice1;
                 openFilter = "画像ファイル (*.png, *.jpg)|*.png;*.jpg|すべてのファイル (*.*)|*.*";
                 openFolder = "同じプロジェクト名のアイコンが既にあります、別のプロジェクト名に変更してください";
             }
         }
-        #endregion InitializeText
-
-        #region OpenImage
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
@@ -67,7 +68,7 @@ namespace ImageShrinker
             {
                 ShowImage(dlg.FileName);
             }
-            IsPasted = false;
+            isPasted = false;
         }
 
         /// <summary>
@@ -77,7 +78,8 @@ namespace ImageShrinker
         /// <param name="e"></param>
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if ((e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl)) && (e.Key == Key.V))
+            if ((e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
+                && (e.Key == Key.V))
             {
                 if (Clipboard.ContainsImage())
                 {
@@ -85,11 +87,8 @@ namespace ImageShrinker
                     ShowImage(source);
                 }
             }
-            
-        }
-        #endregion OpenImage
 
-        #region ShowImage
+        }
 
         // Show Image for Copy & Paste
         private void ShowImage(BitmapSource source)
@@ -103,7 +102,8 @@ namespace ImageShrinker
             encoder.Save(memoryStream);
             imageSource.BeginInit();
             imageSource.StreamSource = new MemoryStream(memoryStream.ToArray());
-            imageSource.EndInit(); memoryStream.Close();
+            imageSource.EndInit();
+            memoryStream.Close();
 
             grayImage.Source = imageSource;
             if (imageSource.PixelHeight < 600 && imageSource.PixelWidth < 800)
@@ -118,7 +118,7 @@ namespace ImageShrinker
             }
             NewImageDisplayed();
         }
-        
+
         // Show Image for file load and drag
         private void ShowImage(string filename)
         {
@@ -141,6 +141,7 @@ namespace ImageShrinker
             }
             NewImageDisplayed();
         }
+
         private void DisplayIconNames()
         {
             string name = projectName.Text;
@@ -153,13 +154,12 @@ namespace ImageShrinker
             name62.Text = name + "_62.png";
             name62.Visibility = Visibility.Visible;
         }
+
         private void projectName_TextChanged(object sender, TextChangedEventArgs e)
         {
             DisplayIconNames();
         }
-        #endregion ShowImage
 
-        #region SaveIcons
         private void Save_Click(object sender, RoutedEventArgs e)
         {
 
@@ -180,11 +180,11 @@ namespace ImageShrinker
                 EncodeAndSave(Icon62, name62.Text as string, path);
                 EncodeAndSave(Icon62, "ApplicationIcon.png", path);
                 string folder = "On same folder with your image";
-                if (IsPasted) folder = "On your desktop";
-                if (IsJapanese)
+                if (isPasted) folder = "On your desktop";
+                if (isJapanese)
                 {
                     folder = "画像と同じフォルダーに";
-                    if (IsPasted) folder = "デスクトップに";
+                    if (isPasted) folder = "デスクトップに";
                 }
                 CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
                 CompleteNotice.Visibility = Visibility.Visible;
@@ -196,12 +196,18 @@ namespace ImageShrinker
             {
                 CompleteNotice.Content = notice5;
             }
-            
+
         }
+
         private void EncodeAndSave(FrameworkElement icon, string name, string filePath)
         {
             // Create BitmapFrame for Icon
-            RenderTargetBitmap rtb = new RenderTargetBitmap((int)icon.Width, (int)icon.Height, 96.0, 96.0, PixelFormats.Pbgra32);
+            RenderTargetBitmap rtb = new RenderTargetBitmap(
+                (int)icon.Width,
+                (int)icon.Height,
+                96.0,
+                96.0,
+                PixelFormats.Pbgra32);
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
@@ -211,8 +217,6 @@ namespace ImageShrinker
             rtb.Render(dv);
             BitmapFrame bmf = BitmapFrame.Create(rtb);
             bmf.Freeze();
-            //Icon200.Fill = new ImageBrush(bmf) ;
-            //string filePath = System.IO.Path.GetDirectoryName(this.fileName);
             string fileOut = filePath + "\\" + name;
             FileStream stream = new FileStream(fileOut, FileMode.Create);
 
@@ -223,42 +227,28 @@ namespace ImageShrinker
             stream.Close();
         }
 
-        #endregion SaveIcons
-
-        #region DragAndDrop
-
-        private string fileName;
-        BitmapImage imageSource;
-        double scale = 1.0;
-
         private void myImage_Drop(object sender, DragEventArgs e)
         {
             e.Handled = true;
             string draggedFileName = IsSingleFile(e);
 
-            if (draggedFileName.Contains(".png") || draggedFileName.Contains(".PNG") ||  draggedFileName.Contains(".jpg") || draggedFileName.Contains(".JPG"))
+            if (draggedFileName.Contains(".png") || draggedFileName.Contains(".PNG") || draggedFileName.Contains(".jpg")
+                || draggedFileName.Contains(".JPG"))
             {
-                //MessageBoxResult mbr = MessageBoxResult.OK;
-                //if (fileName != null)
-                //    mbr = System.Windows.MessageBox.Show("表示されている画像と入れ替えますか？", "relace ?", MessageBoxButton.OKCancel);
-
-                //if (mbr == MessageBoxResult.OK)
-                //{
                 ShowImage(draggedFileName);
-                //}
-                IsPasted = false;
+                isPasted = false;
             }
             else
             {
                 System.Windows.MessageBox.Show(notice4, "Please drag png/jpg file", MessageBoxButton.OK);
             }
-
         }
 
         private void grayImage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             NewImageDisplayed();
         }
+
         private void NewImageDisplayed()
         {
             scale = imageSource.Width / grayImage.ActualWidth;
@@ -305,17 +295,12 @@ namespace ImageShrinker
             // イベントをHandledに、するとDragOverハンドラがキャンセルされる
             args.Handled = true;
         }
-        #endregion DragAndDrop
-
-        #region MouseMove
-        private Point p1 = new Point();
-        private Point p2 = new Point();
-
 
         private void myCanvas_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             CompleteNotice.Content = notice2;
         }
+
         /// <summary>
         /// マウス左ボタン押下用のコールバック
         /// </summary>
@@ -324,7 +309,6 @@ namespace ImageShrinker
             p1 = e.GetPosition(grayImage);
             CompleteNotice.Content = notice1;
         }
-        private Rectangle rectFrame = new Rectangle();
 
         /// <summary>
         /// マウス移動用のコールバック
@@ -336,14 +320,12 @@ namespace ImageShrinker
             {
                 double w = Math.Abs(p1.X - p2.X);
                 double h = Math.Abs(p1.Y - p2.Y);
-                if (w > h) 
-                    p2.Y = (p2.Y > p1.Y) ? p1.Y + w : p1.Y - w;
-                else 
-                    p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - w;
+                if (w > h) p2.Y = (p2.Y > p1.Y) ? p1.Y + w : p1.Y - w;
+                else p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - w;
 
                 Point lt = new Point((p1.X > p2.X) ? p2.X : p1.X, (p1.Y > p2.Y) ? p2.Y : p1.Y);
                 Point rb = new Point((p1.X > p2.X) ? p1.X : p2.X, (p1.Y > p2.Y) ? p1.Y : p2.Y);
-                
+
                 // rabber band
                 myCanvas.Children.Remove(rectFrame);
                 rectFrame.Stroke = Brushes.Gray;
@@ -370,8 +352,5 @@ namespace ImageShrinker
                 DisplayIconNames();
             }
         }
-
-        #endregion MouseMove
-
     }
 }

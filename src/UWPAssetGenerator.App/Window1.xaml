@@ -1,7 +1,7 @@
-﻿<Window x:Class="ImageShrinker.Window1"
+﻿<Window x:Class="UWPAssetGenerator.App.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Windows Phone Icons Maker 1.0" SizeToContent="WidthAndHeight" Icon="WP_IconMaker.ico"
+    Title="Windows Phone Icons Maker 1.0" SizeToContent="WidthAndHeight" Icon="UWPAssetGenerator.App.ico"
     AllowDrop="True" PreviewDrop="myImage_Drop" PreviewDragOver="myImage_PreviewDragOver" Loaded="Window_Loaded" Keyboard.PreviewKeyDown="Window_PreviewKeyDown" >
     <Window.Resources>
     	<Storyboard x:Key="Storyboard1" FillBehavior="Stop">
