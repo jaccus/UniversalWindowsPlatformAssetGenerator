@@ -1,7 +1,10 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WP_IconMaker", "src\UWPAssetGenerator.App\UWPAssetGenerator.App.csproj", "{945A2F41-1EEB-4D77-8516-D7A757ACE0D8}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UWPAssetGenerator.App", "src\UWPAssetGenerator.App\UWPAssetGenerator.App.csproj", "{945A2F41-1EEB-4D77-8516-D7A757ACE0D8}"
+EndProject
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
