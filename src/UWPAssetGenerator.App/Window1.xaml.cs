@@ -1,7 +1,6 @@
 ﻿namespace UWPAssetGenerator.App
 {
     using System;
-    using System.Globalization;
     using System.IO;
     using System.Windows;
     using System.Windows.Controls;
@@ -13,16 +12,17 @@
 
     public partial class Window1
     {
+        private const string Notice1 = "Trim area to be Icon by Mouse";
+        private const string Notice2 = "Click [Save Icons] button if satisfied";
+        private const string Notice3 = "Created folder and Save Completed";
+        private const string OpenFilter = "Image Files (*.png, *.jpg)|*.png;*.jpg|All files (*.*)|*.*";
+        private const string OpenFolder = "Icons with same project name are already exist, please change your project name";
+        private const string Notice4 = "Please load .PNG or .JPG";
+        private const string Notice5 = "Fail to make icons, Trim area to be Icon by Mouse";
+
         private readonly Rectangle rectFrame = new Rectangle();
-        private string notice1 = "Trim area to be Icon by Mouse";
-        private string notice2 = "Click [Save Icons] button if satisfied";
-        private string notice3 = "Created folder and Save Completed";
-        private string openFilter = "Image Files (*.png, *.jpg)|*.png;*.jpg|All files (*.*)|*.*";
-        private string openFolder = "Icons with same project name are already exist, please change your project name";
-        private string notice4 = "Please load .PNG or .JPG";
-        private string notice5 = "Fail to make icons, Trim area to be Icon by Mouse";
+
         private bool isPasted;
-        private bool isJapanese;
         private string fileName;
         private BitmapImage imageSource;
         private double scale = 1.0;
@@ -36,35 +36,11 @@
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (CultureInfo.CurrentUICulture.Name == "ja-JP" || App.Language == "Japanese")
-            {
-                isJapanese = true;
-            }
-
-            if (App.Language == "English")
-            {
-                isJapanese = false;
-            }
-
-            if (isJapanese)
-            {
-                Save.Content = "アイコン保存";
-                Open.Content = "画像を開く";
-                projectLabel.Content = "プロジェクト名";
-                CompleteNotice.Content = "クリップボードからコピー＆貼り付けするか、画像をドラッグ＆ドロップするか、[画像を開く]をクリック";
-                notice1 = "アイコンにしたい部分をマウスで囲む";
-                notice2 = "気に入ったら[アイコン保存]ボタンをクリック";
-                notice3 = "フォルダーを作成し、保存しました";
-                notice4 = "PNG ファイルか JPG ファイルをロードしてください";
-                notice5 = "アイコン作成に失敗、" + notice1;
-                openFilter = "画像ファイル (*.png, *.jpg)|*.png;*.jpg|すべてのファイル (*.*)|*.*";
-                openFolder = "同じプロジェクト名のアイコンが既にあります、別のプロジェクト名に変更してください";
-            }
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = openFilter };
+            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = OpenFilter };
 
             bool? result = dlg.ShowDialog();
             if (result.Value)
@@ -173,7 +149,7 @@
                 path = path + "\\" + projectName.Text + " Icons";
                 if (Directory.Exists(path))
                 {
-                    MessageBox.Show(openFolder);
+                    MessageBox.Show(OpenFolder);
                     return;
                 }
 
@@ -190,16 +166,7 @@
                     folder = "On your desktop";
                 }
 
-                if (isJapanese)
-                {
-                    folder = "画像と同じフォルダーに";
-                    if (isPasted)
-                    {
-                        folder = "デスクトップに";
-                    }
-                }
-
-                CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
+                CompleteNotice.Content = folder + projectName.Text + " Icons" + Notice3;
                 CompleteNotice.Visibility = Visibility.Visible;
 
                 var effect = (Storyboard)FindResource("Storyboard1");
@@ -207,7 +174,7 @@
             }
             else
             {
-                CompleteNotice.Content = notice5;
+                CompleteNotice.Content = Notice5;
             }
         }
 
@@ -245,7 +212,7 @@
             }
             else
             {
-                MessageBox.Show(notice4, "Please drag png/jpg file", MessageBoxButton.OK);
+                MessageBox.Show(Notice4, "Please drag png/jpg file", MessageBoxButton.OK);
             }
         }
 
@@ -262,7 +229,7 @@
             name173.Visibility = Visibility.Hidden;
             name62.Visibility = Visibility.Hidden;
             name99.Visibility = Visibility.Hidden;
-            CompleteNotice.Content = notice1;
+            CompleteNotice.Content = Notice1;
             Icon200.Fill = null;
             Icon173.Fill = null;
             Icon99.Fill = null;
@@ -297,13 +264,13 @@
 
         private void MyCanvasOnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CompleteNotice.Content = notice2;
+            CompleteNotice.Content = Notice2;
         }
 
         private void BackgroundMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             p1 = e.GetPosition(grayImage);
-            CompleteNotice.Content = notice1;
+            CompleteNotice.Content = Notice1;
         }
 
         private void BackgroundMouseMove(object sender, MouseEventArgs e)
