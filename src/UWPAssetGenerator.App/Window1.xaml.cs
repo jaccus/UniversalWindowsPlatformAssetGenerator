@@ -11,10 +11,7 @@
     using System.Windows.Media.Imaging;
     using System.Windows.Shapes;
 
-    /// <summary>
-    /// Window1.xaml の相互作用ロジック
-    /// </summary>
-    public partial class Window1 : Window
+    public partial class Window1
     {
         private readonly Rectangle rectFrame = new Rectangle();
         private string notice1 = "Trim area to be Icon by Mouse";
@@ -39,8 +36,16 @@
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (CultureInfo.CurrentUICulture.Name == "ja-JP" || App.Language == "Japanese") isJapanese = true;
-            if (App.Language == "English") isJapanese = false;
+            if (CultureInfo.CurrentUICulture.Name == "ja-JP" || App.Language == "Japanese")
+            {
+                isJapanese = true;
+            }
+
+            if (App.Language == "English")
+            {
+                isJapanese = false;
+            }
+
             if (isJapanese)
             {
                 Save.Content = "アイコン保存";
@@ -59,44 +64,40 @@
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = openFilter;
+            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = openFilter };
 
-            Nullable<bool> result = dlg.ShowDialog();
-
+            bool? result = dlg.ShowDialog();
             if (result.Value)
             {
                 ShowImage(dlg.FileName);
             }
+
             isPasted = false;
         }
 
         /// <summary>
         /// Handle Copy & Past (ctrl+V)
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if ((e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
-                && (e.Key == Key.V))
+            if ((e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl)) && (e.Key == Key.V))
             {
                 if (Clipboard.ContainsImage())
                 {
-                    BitmapSource source = Clipboard.GetImage();
-                    ShowImage(source);
+                    ShowImage(Clipboard.GetImage());
                 }
             }
-
         }
 
-        // Show Image for Copy & Paste
+        /// <summary>
+        /// Show Image for Copy & Paste
+        /// </summary>
         private void ShowImage(BitmapSource source)
         {
             projectName.Text = "MyProject";
             fileName = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\MyProject";
-            BmpBitmapEncoder encoder = new BmpBitmapEncoder();
-            MemoryStream memoryStream = new MemoryStream();
+            var encoder = new BmpBitmapEncoder();
+            var memoryStream = new MemoryStream();
             imageSource = new BitmapImage();
             encoder.Frames.Add(BitmapFrame.Create(source));
             encoder.Save(memoryStream);
@@ -116,10 +117,13 @@
                 grayImage.Width = 800;
                 grayImage.Height = 600;
             }
+
             NewImageDisplayed();
         }
 
-        // Show Image for file load and drag
+        /// <summary>
+        /// Show Image for file load and drag
+        /// </summary>
         private void ShowImage(string filename)
         {
             fileName = filename;
@@ -139,12 +143,13 @@
                 grayImage.Width = 800;
                 grayImage.Height = 600;
             }
+
             NewImageDisplayed();
         }
 
         private void DisplayIconNames()
         {
-            string name = projectName.Text;
+            var name = projectName.Text;
             name200.Text = name + "_200.png";
             name200.Visibility = Visibility.Visible;
             name173.Text = name + "_173.png";
@@ -155,96 +160,96 @@
             name62.Visibility = Visibility.Visible;
         }
 
-        private void projectName_TextChanged(object sender, TextChangedEventArgs e)
+        private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
         {
             DisplayIconNames();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-
             if (Icon200.Fill != null)
             {
-                string path = System.IO.Path.GetDirectoryName(this.fileName);
+                var path = System.IO.Path.GetDirectoryName(fileName);
                 path = path + "\\" + projectName.Text + " Icons";
                 if (Directory.Exists(path))
                 {
                     MessageBox.Show(openFolder);
                     return;
                 }
-                System.IO.Directory.CreateDirectory(path);
-                EncodeAndSave(Icon200, name200.Text as string, path);
-                EncodeAndSave(Icon173, name173.Text as string, path);
+
+                Directory.CreateDirectory(path);
+                EncodeAndSave(Icon200, name200.Text, path);
+                EncodeAndSave(Icon173, name173.Text, path);
                 EncodeAndSave(Icon173, "Background.png", path);
-                EncodeAndSave(Icon99, name99.Text as string, path);
-                EncodeAndSave(Icon62, name62.Text as string, path);
+                EncodeAndSave(Icon99, name99.Text, path);
+                EncodeAndSave(Icon62, name62.Text, path);
                 EncodeAndSave(Icon62, "ApplicationIcon.png", path);
-                string folder = "On same folder with your image";
-                if (isPasted) folder = "On your desktop";
+                var folder = "On same folder with your image";
+                if (isPasted)
+                {
+                    folder = "On your desktop";
+                }
+
                 if (isJapanese)
                 {
                     folder = "画像と同じフォルダーに";
-                    if (isPasted) folder = "デスクトップに";
+                    if (isPasted)
+                    {
+                        folder = "デスクトップに";
+                    }
                 }
+
                 CompleteNotice.Content = folder + projectName.Text + " Icons" + notice3;
                 CompleteNotice.Visibility = Visibility.Visible;
 
-                Storyboard effect = (Storyboard)this.FindResource("Storyboard1");
+                var effect = (Storyboard)FindResource("Storyboard1");
                 BeginStoryboard(effect);
             }
             else
             {
                 CompleteNotice.Content = notice5;
             }
-
         }
 
-        private void EncodeAndSave(FrameworkElement icon, string name, string filePath)
+        private static void EncodeAndSave(FrameworkElement icon, string name, string filePath)
         {
-            // Create BitmapFrame for Icon
-            RenderTargetBitmap rtb = new RenderTargetBitmap(
-                (int)icon.Width,
-                (int)icon.Height,
-                96.0,
-                96.0,
-                PixelFormats.Pbgra32);
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
+            var rtb = new RenderTargetBitmap((int)icon.Width, (int)icon.Height, 96.0, 96.0, PixelFormats.Pbgra32);
+            var dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
             {
-                VisualBrush vb = new VisualBrush(icon);
+                var vb = new VisualBrush(icon);
                 dc.DrawRectangle(vb, null, new Rect(new Point(), new Size((int)icon.Width, (int)icon.Height)));
             }
-            rtb.Render(dv);
-            BitmapFrame bmf = BitmapFrame.Create(rtb);
-            bmf.Freeze();
-            string fileOut = filePath + "\\" + name;
-            FileStream stream = new FileStream(fileOut, FileMode.Create);
 
-            // PNGにエンコード
-            PngBitmapEncoder encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(bmf);
-            encoder.Save(stream);
-            stream.Close();
+            rtb.Render(dv);
+            var bmf = BitmapFrame.Create(rtb);
+            bmf.Freeze();
+            var fileOut = filePath + "\\" + name;
+            using (var stream = new FileStream(fileOut, FileMode.Create))
+            {
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(bmf);
+                encoder.Save(stream);
+            }
         }
 
-        private void myImage_Drop(object sender, DragEventArgs e)
+        private void MyImageOnDrop(object sender, DragEventArgs e)
         {
             e.Handled = true;
-            string draggedFileName = IsSingleFile(e);
+            var draggedFileName = IsSingleFile(e);
 
-            if (draggedFileName.Contains(".png") || draggedFileName.Contains(".PNG") || draggedFileName.Contains(".jpg")
-                || draggedFileName.Contains(".JPG"))
+            if (draggedFileName.Contains(".png") || draggedFileName.Contains(".PNG") || draggedFileName.Contains(".jpg") || draggedFileName.Contains(".JPG"))
             {
                 ShowImage(draggedFileName);
                 isPasted = false;
             }
             else
             {
-                System.Windows.MessageBox.Show(notice4, "Please drag png/jpg file", MessageBoxButton.OK);
+                MessageBox.Show(notice4, "Please drag png/jpg file", MessageBoxButton.OK);
             }
         }
 
-        private void grayImage_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void BackgroundSizeChanged(object sender, SizeChangedEventArgs e)
         {
             NewImageDisplayed();
         }
@@ -252,8 +257,7 @@
         private void NewImageDisplayed()
         {
             scale = imageSource.Width / grayImage.ActualWidth;
-            string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
-            projectName.Text = name;
+            projectName.Text = System.IO.Path.GetFileNameWithoutExtension(fileName);
             name200.Visibility = Visibility.Hidden;
             name173.Visibility = Visibility.Hidden;
             name62.Visibility = Visibility.Hidden;
@@ -266,91 +270,85 @@
             myCanvas.Children.Remove(rectFrame);
         }
 
-        private string IsSingleFile(DragEventArgs args)
+        private static string IsSingleFile(DragEventArgs args)
         {
-            // データオブジェクト内のファイルをチェック
-            if (args.Data.GetDataPresent(DataFormats.FileDrop, true))
+            if (!args.Data.GetDataPresent(DataFormats.FileDrop, true))
             {
-                string[] fileNames = args.Data.GetData(DataFormats.FileDrop, true) as string[];
-                // 単一ファイル/フォルダをチェック
-                if (fileNames.Length == 1)
+                return null;
+            }
+
+            var fileNames = args.Data.GetData(DataFormats.FileDrop, true) as string[];
+            if (fileNames.Length == 1)
+            {
+                if (File.Exists(fileNames[0]))
                 {
-                    // ファイルをチェック（ディレクトリはfalseを返す）
-                    if (File.Exists(fileNames[0]))
-                    {
-                        // この時点で単一ファイルであることが分かる
-                        return fileNames[0];
-                    }
+                    return fileNames[0];
                 }
             }
+
             return null;
         }
 
-        private void myImage_PreviewDragOver(object sender, DragEventArgs args)
+        private void MyImageOnPreviewDragOver(object sender, DragEventArgs args)
         {
-            // 単一ファイルだけを処理したい
-            if (IsSingleFile(args) != null) args.Effects = DragDropEffects.Copy;
-            else args.Effects = DragDropEffects.None;
-
-            // イベントをHandledに、するとDragOverハンドラがキャンセルされる
+            args.Effects = IsSingleFile(args) != null ? DragDropEffects.Copy : DragDropEffects.None;
             args.Handled = true;
         }
 
-        private void myCanvas_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void MyCanvasOnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             CompleteNotice.Content = notice2;
         }
 
-        /// <summary>
-        /// マウス左ボタン押下用のコールバック
-        /// </summary>
-        private void UC_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void BackgroundMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             p1 = e.GetPosition(grayImage);
             CompleteNotice.Content = notice1;
         }
 
-        /// <summary>
-        /// マウス移動用のコールバック
-        /// </summary>
-        private void UC_MouseMove(object sender, MouseEventArgs e)
+        private void BackgroundMouseMove(object sender, MouseEventArgs e)
         {
             p2 = e.GetPosition(grayImage);
-            if (e.LeftButton == MouseButtonState.Pressed)
+
+            if (e.LeftButton != MouseButtonState.Pressed)
             {
-                double w = Math.Abs(p1.X - p2.X);
-                double h = Math.Abs(p1.Y - p2.Y);
-                if (w > h) p2.Y = (p2.Y > p1.Y) ? p1.Y + w : p1.Y - w;
-                else p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - w;
-
-                Point lt = new Point((p1.X > p2.X) ? p2.X : p1.X, (p1.Y > p2.Y) ? p2.Y : p1.Y);
-                Point rb = new Point((p1.X > p2.X) ? p1.X : p2.X, (p1.Y > p2.Y) ? p1.Y : p2.Y);
-
-                // rabber band
-                myCanvas.Children.Remove(rectFrame);
-                rectFrame.Stroke = Brushes.Gray;
-                rectFrame.StrokeThickness = 1.0;
-                rectFrame.Width = rb.X - lt.X;
-                rectFrame.Height = rb.Y - lt.Y;
-                rectFrame.RenderTransform = new TranslateTransform(lt.X, lt.Y);
-                myCanvas.Children.Add(rectFrame);
-
-                // Icon Images
-                Point sourceLt = new Point(lt.X * scale, lt.Y * scale);
-                Point sourceRb = new Point(rb.X * scale, rb.Y * scale);
-
-                ImageBrush brush = new ImageBrush();
-                brush.ImageSource = imageSource;
-                brush.Viewbox = new Rect(sourceLt, sourceRb);
-                brush.ViewboxUnits = BrushMappingMode.Absolute;
-                brush.Stretch = Stretch.Fill;
-
-                Icon200.Fill = brush;
-                Icon173.Fill = brush;
-                Icon99.Fill = brush;
-                Icon62.Fill = brush;
-                DisplayIconNames();
+                return;
             }
+
+            double w = Math.Abs(p1.X - p2.X);
+            double h = Math.Abs(p1.Y - p2.Y);
+            if (w > h)
+            {
+                p2.Y = (p2.Y > p1.Y) ? p1.Y + w : p1.Y - w;
+            }
+            else
+            {
+                p2.X = (p2.X > p1.X) ? p1.X + h : p1.X - w;
+            }
+
+            var lt = new Point((p1.X > p2.X) ? p2.X : p1.X, (p1.Y > p2.Y) ? p2.Y : p1.Y);
+            var rb = new Point((p1.X > p2.X) ? p1.X : p2.X, (p1.Y > p2.Y) ? p1.Y : p2.Y);
+
+            // rabber band
+            myCanvas.Children.Remove(rectFrame);
+            rectFrame.Stroke = Brushes.Gray;
+            rectFrame.StrokeThickness = 1.0;
+            rectFrame.Width = rb.X - lt.X;
+            rectFrame.Height = rb.Y - lt.Y;
+            rectFrame.RenderTransform = new TranslateTransform(lt.X, lt.Y);
+            myCanvas.Children.Add(rectFrame);
+
+            // Icon Images
+            var sourceLt = new Point(lt.X * scale, lt.Y * scale);
+            var sourceRb = new Point(rb.X * scale, rb.Y * scale);
+
+            var brush = new ImageBrush { ImageSource = imageSource, Viewbox = new Rect(sourceLt, sourceRb), ViewboxUnits = BrushMappingMode.Absolute, Stretch = Stretch.Fill };
+
+            Icon200.Fill = brush;
+            Icon173.Fill = brush;
+            Icon99.Fill = brush;
+            Icon62.Fill = brush;
+            DisplayIconNames();
         }
     }
 }

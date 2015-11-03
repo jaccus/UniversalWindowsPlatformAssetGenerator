@@ -2,17 +2,18 @@
 {
     using System.Windows;
 
-    public partial class App : Application
+    public partial class App
     {
-        public static string Language;
+        public static string Language { get; private set; }
 
-        /// <summary>
-        /// コマンドラインを処理するスタートアップ
-        /// </summary>
-        private void app_Startup(object sender, StartupEventArgs e)
+        private void AppStartup(object sender, StartupEventArgs e)
         {
-            if (e.Args.Length == 0) return;
-            foreach (string argument in e.Args)
+            if (e.Args.Length == 0)
+            {
+                return;
+            }
+
+            foreach (var argument in e.Args)
             {
                 if (argument.Contains("-E") || argument.Contains("-e"))
                 {
