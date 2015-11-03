@@ -10,6 +10,8 @@
     using System.Windows.Media.Imaging;
     using System.Windows.Shapes;
 
+    using UWPAssetGenerator.Core.Engine;
+
     public partial class Window1
     {
         private const string Notice1 = "Trim area to be Icon by Mouse";
@@ -21,6 +23,7 @@
         private const string Notice5 = "Fail to make icons, Trim area to be Icon by Mouse";
 
         private readonly Rectangle rectFrame = new Rectangle();
+        private readonly ImageEncodingEngine imageEncodingEngine = new ImageEncodingEngine();
 
         private bool isPasted;
         private string fileName;
@@ -73,14 +76,15 @@
             projectName.Text = "MyProject";
             fileName = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\MyProject";
             var encoder = new BmpBitmapEncoder();
-            var memoryStream = new MemoryStream();
-            imageSource = new BitmapImage();
-            encoder.Frames.Add(BitmapFrame.Create(source));
-            encoder.Save(memoryStream);
-            imageSource.BeginInit();
-            imageSource.StreamSource = new MemoryStream(memoryStream.ToArray());
-            imageSource.EndInit();
-            memoryStream.Close();
+            using (var memoryStream = new MemoryStream())
+            {
+                imageSource = new BitmapImage();
+                encoder.Frames.Add(BitmapFrame.Create(source));
+                encoder.Save(memoryStream);
+                imageSource.BeginInit();
+                imageSource.StreamSource = new MemoryStream(memoryStream.ToArray());
+                imageSource.EndInit();
+            }
 
             grayImage.Source = imageSource;
             if (imageSource.PixelHeight < 600 && imageSource.PixelWidth < 800)
@@ -154,12 +158,12 @@
                 }
 
                 Directory.CreateDirectory(path);
-                EncodeAndSave(Icon200, name200.Text, path);
-                EncodeAndSave(Icon173, name173.Text, path);
-                EncodeAndSave(Icon173, "Background.png", path);
-                EncodeAndSave(Icon99, name99.Text, path);
-                EncodeAndSave(Icon62, name62.Text, path);
-                EncodeAndSave(Icon62, "ApplicationIcon.png", path);
+                imageEncodingEngine.EncodeAndSave(Icon200, name200.Text, path);
+                imageEncodingEngine.EncodeAndSave(Icon173, name173.Text, path);
+                imageEncodingEngine.EncodeAndSave(Icon173, "Background.png", path);
+                imageEncodingEngine.EncodeAndSave(Icon99, name99.Text, path);
+                imageEncodingEngine.EncodeAndSave(Icon62, name62.Text, path);
+                imageEncodingEngine.EncodeAndSave(Icon62, "ApplicationIcon.png", path);
                 var folder = "On same folder with your image";
                 if (isPasted)
                 {
@@ -175,28 +179,6 @@
             else
             {
                 CompleteNotice.Content = Notice5;
-            }
-        }
-
-        private static void EncodeAndSave(FrameworkElement icon, string name, string filePath)
-        {
-            var rtb = new RenderTargetBitmap((int)icon.Width, (int)icon.Height, 96.0, 96.0, PixelFormats.Pbgra32);
-            var dv = new DrawingVisual();
-            using (var dc = dv.RenderOpen())
-            {
-                var vb = new VisualBrush(icon);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), new Size((int)icon.Width, (int)icon.Height)));
-            }
-
-            rtb.Render(dv);
-            var bmf = BitmapFrame.Create(rtb);
-            bmf.Freeze();
-            var fileOut = filePath + "\\" + name;
-            using (var stream = new FileStream(fileOut, FileMode.Create))
-            {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(bmf);
-                encoder.Save(stream);
             }
         }
 
