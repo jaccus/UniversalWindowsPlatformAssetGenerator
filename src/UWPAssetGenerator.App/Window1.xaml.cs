@@ -97,10 +97,10 @@
         {
             projectName.Text = "MyProject";
             fileName = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\MyProject";
-            var encoder = new BmpBitmapEncoder();
             using (var memoryStream = new MemoryStream())
             {
                 imageSource = new BitmapImage();
+                var encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(source));
                 encoder.Save(memoryStream);
                 imageSource.BeginInit();
@@ -109,16 +109,10 @@
             }
 
             grayImage.Source = imageSource;
-            if (imageSource.PixelHeight < 600 && imageSource.PixelWidth < 800)
-            {
-                grayImage.Width = imageSource.PixelWidth;
-                grayImage.Height = imageSource.PixelHeight;
-            }
-            else
-            {
-                grayImage.Width = 800;
-                grayImage.Height = 600;
-            }
+
+            var isSmallerThan800X600 = IsImageSmallerThan800X600(imageSource);
+            grayImage.Width = isSmallerThan800X600 ? imageSource.PixelWidth : 800;
+            grayImage.Height = isSmallerThan800X600 ? imageSource.PixelHeight : 600;
 
             NewImageDisplayed();
         }
@@ -135,18 +129,16 @@
             imageSource.EndInit();
 
             grayImage.Source = imageSource;
-            if (imageSource.PixelHeight < 600 && imageSource.PixelWidth < 800)
-            {
-                grayImage.Width = imageSource.PixelWidth;
-                grayImage.Height = imageSource.PixelHeight;
-            }
-            else
-            {
-                grayImage.Width = 800;
-                grayImage.Height = 600;
-            }
+            var isImageSmallerThan800X600 = IsImageSmallerThan800X600(imageSource);
+            grayImage.Width = isImageSmallerThan800X600 ? imageSource.PixelWidth : 800;
+            grayImage.Height = isImageSmallerThan800X600 ? imageSource.PixelHeight : 600;
 
             NewImageDisplayed();
+        }
+
+        private bool IsImageSmallerThan800X600(BitmapSource image)
+        {
+            return image.PixelHeight < 600 && image.PixelWidth < 800;
         }
 
         private void DisplayIconNames()
