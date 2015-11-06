@@ -1,6 +1,7 @@
 ﻿namespace UWPAssetGenerator.App
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Windows;
     using System.Windows.Controls;
@@ -10,6 +11,7 @@
     using System.Windows.Media.Imaging;
     using System.Windows.Shapes;
 
+    using UWPAssetGenerator.App.Controls;
     using UWPAssetGenerator.Core.Engine;
 
     public partial class Window1
@@ -24,6 +26,8 @@
 
         private readonly Rectangle rectFrame = new Rectangle();
         private readonly ImageEncodingEngine imageEncodingEngine = new ImageEncodingEngine();
+        private readonly Dictionary<int, DynamicScalingImageThumbnail> thumbnails = new Dictionary<int, DynamicScalingImageThumbnail>();
+        private readonly List<int> thumbnailSizes = new List<int> { 200, 173, 99, 62 };
 
         private bool isPasted;
         private string fileName;
@@ -35,6 +39,13 @@
         public Window1()
         {
             InitializeComponent();
+
+            foreach (var thumbnailSize in thumbnailSizes)
+            {
+                var thumbnail = new DynamicScalingImageThumbnail { ThumbnailHeight = thumbnailSize, ThumbnailWidth = thumbnailSize, };
+                thumbnails.Add(thumbnailSize, thumbnail);
+                iconPanel.Children.Add(thumbnail);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -130,14 +141,15 @@
         private void DisplayIconNames()
         {
             var name = projectName.Text;
-            Thumbnail200.Title.Text = name + "_200.png";
-            Thumbnail200.Title.Visibility = Visibility.Visible;
-            Thumbnail173.Title.Text = name + "_173.png";
-            Thumbnail173.Title.Visibility = Visibility.Visible;
-            Thumbnail99.Title.Text = name + "_99.png";
-            Thumbnail99.Title.Visibility = Visibility.Visible;
-            Thumbnail62.Title.Text = name + "_62.png";
-            Thumbnail62.Title.Visibility = Visibility.Visible;
+
+            thumbnails[200].Title.Text = name + "_200.png";
+            thumbnails[200].Title.Visibility = Visibility.Visible;
+            thumbnails[173].Title.Text = name + "_173.png";
+            thumbnails[173].Title.Visibility = Visibility.Visible;
+            thumbnails[99].Title.Text = name + "_99.png";
+            thumbnails[99].Title.Visibility = Visibility.Visible;
+            thumbnails[62].Title.Text = name + "_62.png";
+            thumbnails[62].Title.Visibility = Visibility.Visible;
         }
 
         private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
@@ -147,7 +159,7 @@
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (Thumbnail200.Image.Fill != null)
+            if (thumbnails[200].Image.Fill != null)
             {
                 var path = System.IO.Path.GetDirectoryName(fileName);
                 path = path + "\\" + projectName.Text + " Icons";
@@ -158,12 +170,12 @@
                 }
 
                 Directory.CreateDirectory(path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail200.Image, Thumbnail200.Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail173.Image, Thumbnail173.Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail173.Image, "Background.png", path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail99.Image, Thumbnail99.Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail62.Image, Thumbnail62.Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(Thumbnail62.Image, "ApplicationIcon.png", path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[200].Image, thumbnails[200].Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, thumbnails[173].Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, "Background.png", path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[99].Image, thumbnails[99].Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, thumbnails[62].Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, "ApplicationIcon.png", path);
                 var folder = "On same folder with your image";
                 if (isPasted)
                 {
@@ -207,15 +219,15 @@
         {
             scale = imageSource.Width / grayImage.ActualWidth;
             projectName.Text = System.IO.Path.GetFileNameWithoutExtension(fileName);
-            Thumbnail200.Title.Visibility = Visibility.Hidden;
-            Thumbnail173.Title.Visibility = Visibility.Hidden;
-            Thumbnail62.Title.Visibility = Visibility.Hidden;
-            Thumbnail99.Title.Visibility = Visibility.Hidden;
+            thumbnails[200].Title.Visibility = Visibility.Hidden;
+            thumbnails[173].Title.Visibility = Visibility.Hidden;
+            thumbnails[62].Title.Visibility = Visibility.Hidden;
+            thumbnails[99].Title.Visibility = Visibility.Hidden;
             CompleteNotice.Content = Notice1;
-            Thumbnail200.Image.Fill = null;
-            Thumbnail173.Image.Fill = null;
-            Thumbnail99.Image.Fill = null;
-            Thumbnail62.Image.Fill = null;
+            thumbnails[200].Image.Fill = null;
+            thumbnails[173].Image.Fill = null;
+            thumbnails[99].Image.Fill = null;
+            thumbnails[62].Image.Fill = null;
             myCanvas.Children.Remove(rectFrame);
         }
 
@@ -293,10 +305,10 @@
 
             var brush = new ImageBrush { ImageSource = imageSource, Viewbox = new Rect(sourceLt, sourceRb), ViewboxUnits = BrushMappingMode.Absolute, Stretch = Stretch.Fill };
 
-            Thumbnail200.Image.Fill = brush;
-            Thumbnail173.Image.Fill = brush;
-            Thumbnail99.Image.Fill = brush;
-            Thumbnail62.Image.Fill = brush;
+            thumbnails[200].Image.Fill = brush;
+            thumbnails[173].Image.Fill = brush;
+            thumbnails[99].Image.Fill = brush;
+            thumbnails[62].Image.Fill = brush;
             DisplayIconNames();
         }
     }

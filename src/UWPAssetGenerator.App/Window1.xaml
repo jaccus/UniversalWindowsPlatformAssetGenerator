@@ -50,10 +50,6 @@
         			<TranslateTransform/>
         		</TransformGroup>
         	</StackPanel.RenderTransform>
-            <local:DynamicScalingImageThumbnail x:Name="Thumbnail200" ThumbnailWidth="200" ThumbnailHeight="200"></local:DynamicScalingImageThumbnail>
-            <local:DynamicScalingImageThumbnail x:Name="Thumbnail173" ThumbnailWidth="173" ThumbnailHeight="173"></local:DynamicScalingImageThumbnail>
-            <local:DynamicScalingImageThumbnail x:Name="Thumbnail99" ThumbnailWidth="99" ThumbnailHeight="99"></local:DynamicScalingImageThumbnail>
-            <local:DynamicScalingImageThumbnail x:Name="Thumbnail62" ThumbnailWidth="62" ThumbnailHeight="62"></local:DynamicScalingImageThumbnail>
         </StackPanel>
         <Label Grid.Row="2" Name="CompleteNotice" Margin="10,2,10,2" Foreground="Black" Visibility="Visible">"Copy and Past from Clipboard, or Click [Open Image], or Drag and Drop a Picture to be icons"</Label>
     </Grid>
