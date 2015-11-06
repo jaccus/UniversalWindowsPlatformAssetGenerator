@@ -16,13 +16,7 @@
 
     public partial class Window1
     {
-        private const string Notice1 = "Trim area to be Icon by Mouse";
-        private const string Notice2 = "Click [Save Icons] button if satisfied";
-        private const string Notice3 = "Created folder and Save Completed";
-        private const string OpenFilter = "Image Files (*.png, *.jpg)|*.png;*.jpg|All files (*.*)|*.*";
-        private const string OpenFolder = "Icons with same project name are already exist, please change your project name";
-        private const string Notice4 = "Please load .PNG or .JPG";
-        private const string Notice5 = "Fail to make icons, Trim area to be Icon by Mouse";
+        private const string TrimAreaToBeIconByMouseMessage = "Trim area to be Icon by Mouse";
 
         private readonly Rectangle rectFrame = new Rectangle();
         private readonly ImageEncodingEngine imageEncodingEngine = new ImageEncodingEngine();
@@ -48,13 +42,30 @@
             }
         }
 
+        private bool HasUserTrimmedInputImage
+        {
+            get
+            {
+                return ((DynamicScalingImageThumbnail)iconPanel.Children[0]).Image.Fill != null;
+            }
+        }
+
+        private string CompleteNoticeMessage
+        {
+            get
+            {
+                var folderMessage = isPasted ? "On your desktop" : "On same folder with your image";
+                return string.Format("{0}{1} Icons{2}", folderMessage, projectName.Text, "Created folder and Save Completed");
+            }
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = OpenFilter };
+            var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "Image Files (*.png, *.jpg)|*.png;*.jpg|All files (*.*)|*.*" };
 
             bool? result = dlg.ShowDialog();
             if (result.Value)
@@ -142,14 +153,11 @@
         {
             var name = projectName.Text;
 
-            thumbnails[200].Title.Text = name + "_200.png";
-            thumbnails[200].Title.Visibility = Visibility.Visible;
-            thumbnails[173].Title.Text = name + "_173.png";
-            thumbnails[173].Title.Visibility = Visibility.Visible;
-            thumbnails[99].Title.Text = name + "_99.png";
-            thumbnails[99].Title.Visibility = Visibility.Visible;
-            thumbnails[62].Title.Text = name + "_62.png";
-            thumbnails[62].Title.Visibility = Visibility.Visible;
+            foreach (var thumbnail in thumbnails)
+            {
+                thumbnail.Value.Title.Text = $"{name}_{thumbnail.Key}.png";
+                thumbnail.Value.Title.Visibility = Visibility.Visible;
+            }
         }
 
         private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
@@ -159,39 +167,47 @@
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (thumbnails[200].Image.Fill != null)
+            if (!HasUserTrimmedInputImage)
             {
-                var path = System.IO.Path.GetDirectoryName(fileName);
-                path = path + "\\" + projectName.Text + " Icons";
-                if (Directory.Exists(path))
-                {
-                    MessageBox.Show(OpenFolder);
-                    return;
-                }
-
-                Directory.CreateDirectory(path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[200].Image, thumbnails[200].Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, thumbnails[173].Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, "Background.png", path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[99].Image, thumbnails[99].Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, thumbnails[62].Title.Text, path);
-                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, "ApplicationIcon.png", path);
-                var folder = "On same folder with your image";
-                if (isPasted)
-                {
-                    folder = "On your desktop";
-                }
-
-                CompleteNotice.Content = folder + projectName.Text + " Icons" + Notice3;
-                CompleteNotice.Visibility = Visibility.Visible;
-
-                var effect = (Storyboard)FindResource("Storyboard1");
-                BeginStoryboard(effect);
+                CompleteNotice.Content = "Fail to make icons, Trim area to be Icon by Mouse";
+                return;
             }
-            else
+
+            var destFolderPath = BuildDestFolderPath();
+            if (Directory.Exists(destFolderPath))
             {
-                CompleteNotice.Content = Notice5;
+                MessageBox.Show("Icons with same project name are already exist, please change your project name");
+                return;
             }
+
+            Directory.CreateDirectory(destFolderPath);
+
+            foreach (var thumbnail in thumbnails)
+            {
+                imageEncodingEngine.EncodeAndSave(thumbnail.Value.Image, thumbnail.Value.Title.Text, destFolderPath);
+            }
+
+            if (thumbnails.ContainsKey(173))
+            {
+                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, "Background.png", destFolderPath);
+            }
+
+            if (thumbnails.ContainsKey(62))
+            {
+                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, "ApplicationIcon.png", destFolderPath);
+            }
+
+            CompleteNotice.Content = CompleteNoticeMessage;
+            CompleteNotice.Visibility = Visibility.Visible;
+
+            BeginStoryboard((Storyboard)FindResource("Storyboard1"));
+        }
+
+        private string BuildDestFolderPath()
+        {
+            var destFolderPath = System.IO.Path.GetDirectoryName(fileName);
+            destFolderPath = $"{destFolderPath}\\{projectName.Text} Icons";
+            return destFolderPath;
         }
 
         private void MyImageOnDrop(object sender, DragEventArgs e)
@@ -206,7 +222,7 @@
             }
             else
             {
-                MessageBox.Show(Notice4, "Please drag png/jpg file", MessageBoxButton.OK);
+                MessageBox.Show("Please load .PNG or .JPG", "Please drag png/jpg file", MessageBoxButton.OK);
             }
         }
 
@@ -219,15 +235,14 @@
         {
             scale = imageSource.Width / grayImage.ActualWidth;
             projectName.Text = System.IO.Path.GetFileNameWithoutExtension(fileName);
-            thumbnails[200].Title.Visibility = Visibility.Hidden;
-            thumbnails[173].Title.Visibility = Visibility.Hidden;
-            thumbnails[62].Title.Visibility = Visibility.Hidden;
-            thumbnails[99].Title.Visibility = Visibility.Hidden;
-            CompleteNotice.Content = Notice1;
-            thumbnails[200].Image.Fill = null;
-            thumbnails[173].Image.Fill = null;
-            thumbnails[99].Image.Fill = null;
-            thumbnails[62].Image.Fill = null;
+            CompleteNotice.Content = TrimAreaToBeIconByMouseMessage;
+
+            foreach (var thumbnail in thumbnails)
+            {
+                thumbnail.Value.Title.Visibility = Visibility.Hidden;
+                thumbnail.Value.Image.Fill = null;
+            }
+
             myCanvas.Children.Remove(rectFrame);
         }
 
@@ -258,13 +273,13 @@
 
         private void MyCanvasOnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CompleteNotice.Content = Notice2;
+            CompleteNotice.Content = "Click [Save Icons] button if satisfied";
         }
 
         private void BackgroundMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             p1 = e.GetPosition(grayImage);
-            CompleteNotice.Content = Notice1;
+            CompleteNotice.Content = TrimAreaToBeIconByMouseMessage;
         }
 
         private void BackgroundMouseMove(object sender, MouseEventArgs e)
@@ -305,10 +320,11 @@
 
             var brush = new ImageBrush { ImageSource = imageSource, Viewbox = new Rect(sourceLt, sourceRb), ViewboxUnits = BrushMappingMode.Absolute, Stretch = Stretch.Fill };
 
-            thumbnails[200].Image.Fill = brush;
-            thumbnails[173].Image.Fill = brush;
-            thumbnails[99].Image.Fill = brush;
-            thumbnails[62].Image.Fill = brush;
+            foreach (var thumbnail in thumbnails)
+            {
+                thumbnail.Value.Image.Fill = brush;
+            }
+
             DisplayIconNames();
         }
     }
