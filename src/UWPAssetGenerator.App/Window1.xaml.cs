@@ -130,14 +130,14 @@
         private void DisplayIconNames()
         {
             var name = projectName.Text;
-            name200.Text = name + "_200.png";
-            name200.Visibility = Visibility.Visible;
-            name173.Text = name + "_173.png";
-            name173.Visibility = Visibility.Visible;
-            name99.Text = name + "_99.png";
-            name99.Visibility = Visibility.Visible;
-            name62.Text = name + "_62.png";
-            name62.Visibility = Visibility.Visible;
+            Thumbnail200.Title.Text = name + "_200.png";
+            Thumbnail200.Title.Visibility = Visibility.Visible;
+            Thumbnail173.Title.Text = name + "_173.png";
+            Thumbnail173.Title.Visibility = Visibility.Visible;
+            Thumbnail99.Title.Text = name + "_99.png";
+            Thumbnail99.Title.Visibility = Visibility.Visible;
+            Thumbnail62.Title.Text = name + "_62.png";
+            Thumbnail62.Title.Visibility = Visibility.Visible;
         }
 
         private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
@@ -147,7 +147,7 @@
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (Icon200.Fill != null)
+            if (Thumbnail200.Image.Fill != null)
             {
                 var path = System.IO.Path.GetDirectoryName(fileName);
                 path = path + "\\" + projectName.Text + " Icons";
@@ -158,12 +158,12 @@
                 }
 
                 Directory.CreateDirectory(path);
-                imageEncodingEngine.EncodeAndSave(Icon200, name200.Text, path);
-                imageEncodingEngine.EncodeAndSave(Icon173, name173.Text, path);
-                imageEncodingEngine.EncodeAndSave(Icon173, "Background.png", path);
-                imageEncodingEngine.EncodeAndSave(Icon99, name99.Text, path);
-                imageEncodingEngine.EncodeAndSave(Icon62, name62.Text, path);
-                imageEncodingEngine.EncodeAndSave(Icon62, "ApplicationIcon.png", path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail200.Image, Thumbnail200.Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail173.Image, Thumbnail173.Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail173.Image, "Background.png", path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail99.Image, Thumbnail99.Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail62.Image, Thumbnail62.Title.Text, path);
+                imageEncodingEngine.EncodeAndSave(Thumbnail62.Image, "ApplicationIcon.png", path);
                 var folder = "On same folder with your image";
                 if (isPasted)
                 {
@@ -207,15 +207,15 @@
         {
             scale = imageSource.Width / grayImage.ActualWidth;
             projectName.Text = System.IO.Path.GetFileNameWithoutExtension(fileName);
-            name200.Visibility = Visibility.Hidden;
-            name173.Visibility = Visibility.Hidden;
-            name62.Visibility = Visibility.Hidden;
-            name99.Visibility = Visibility.Hidden;
+            Thumbnail200.Title.Visibility = Visibility.Hidden;
+            Thumbnail173.Title.Visibility = Visibility.Hidden;
+            Thumbnail62.Title.Visibility = Visibility.Hidden;
+            Thumbnail99.Title.Visibility = Visibility.Hidden;
             CompleteNotice.Content = Notice1;
-            Icon200.Fill = null;
-            Icon173.Fill = null;
-            Icon99.Fill = null;
-            Icon62.Fill = null;
+            Thumbnail200.Image.Fill = null;
+            Thumbnail173.Image.Fill = null;
+            Thumbnail99.Image.Fill = null;
+            Thumbnail62.Image.Fill = null;
             myCanvas.Children.Remove(rectFrame);
         }
 
@@ -293,10 +293,10 @@
 
             var brush = new ImageBrush { ImageSource = imageSource, Viewbox = new Rect(sourceLt, sourceRb), ViewboxUnits = BrushMappingMode.Absolute, Stretch = Stretch.Fill };
 
-            Icon200.Fill = brush;
-            Icon173.Fill = brush;
-            Icon99.Fill = brush;
-            Icon62.Fill = brush;
+            Thumbnail200.Image.Fill = brush;
+            Thumbnail173.Image.Fill = brush;
+            Thumbnail99.Image.Fill = brush;
+            Thumbnail62.Image.Fill = brush;
             DisplayIconNames();
         }
     }
