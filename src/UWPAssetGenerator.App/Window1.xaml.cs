@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -11,7 +12,7 @@
     using System.Windows.Media.Imaging;
     using System.Windows.Shapes;
 
-    using UWPAssetGenerator.App.Controls;
+    using UWPAssetGenerator.App.ViewModels;
     using UWPAssetGenerator.Core.Engine;
 
     public partial class Window1
@@ -20,8 +21,8 @@
 
         private readonly Rectangle rectFrame = new Rectangle();
         private readonly ImageEncodingEngine imageEncodingEngine = new ImageEncodingEngine();
-        private readonly Dictionary<int, DynamicScalingImageThumbnail> thumbnails = new Dictionary<int, DynamicScalingImageThumbnail>();
         private readonly List<int> thumbnailSizes = new List<int> { 200, 173, 99, 62 };
+        private readonly List<ThumbnailViewModel> thumbnails = new List<ThumbnailViewModel>();
 
         private bool isPasted;
         private string fileName;
@@ -36,19 +37,13 @@
 
             foreach (var thumbnailSize in thumbnailSizes)
             {
-                var thumbnail = new DynamicScalingImageThumbnail { ThumbnailHeight = thumbnailSize, ThumbnailWidth = thumbnailSize, };
-                thumbnails.Add(thumbnailSize, thumbnail);
-                iconPanel.Children.Add(thumbnail);
+                var key = thumbnailSize;
+                thumbnails.Add(new ThumbnailViewModel { Key = key, Title = BuildFileNameForKey(key), Height = thumbnailSize, Width = thumbnailSize });
             }
+            iconPanel.ItemsSource = thumbnails;
         }
 
-        private bool HasUserTrimmedInputImage
-        {
-            get
-            {
-                return ((DynamicScalingImageThumbnail)iconPanel.Children[0]).Image.Fill != null;
-            }
-        }
+        private bool HasUserTrimmedInputImage => thumbnails.First().Brush != null;
 
         private string CompleteNoticeMessage
         {
@@ -143,13 +138,17 @@
 
         private void DisplayIconNames()
         {
-            var name = projectName.Text;
 
             foreach (var thumbnail in thumbnails)
             {
-                thumbnail.Value.Title.Text = $"{name}_{thumbnail.Key}.png";
-                thumbnail.Value.Title.Visibility = Visibility.Visible;
+                thumbnail.Title = BuildFileNameForKey(thumbnail.Key);
+                thumbnail.TitleVisibility = Visibility.Visible;
             }
+        }
+
+        private string BuildFileNameForKey(int key)
+        {
+            return $"{projectName.Text}_{key}.png";
         }
 
         private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
@@ -176,17 +175,19 @@
 
             foreach (var thumbnail in thumbnails)
             {
-                imageEncodingEngine.EncodeAndSave(thumbnail.Value.Image, thumbnail.Value.Title.Text, destFolderPath);
+                imageEncodingEngine.EncodeAndSave(thumbnail.Brush, thumbnail.Title, destFolderPath, thumbnail.Width, thumbnail.Height);
             }
 
-            if (thumbnails.ContainsKey(173))
+            var thumb173 = thumbnails.FirstOrDefault(t => t.Key == 173);
+            if (thumb173 != null)
             {
-                imageEncodingEngine.EncodeAndSave(thumbnails[173].Image, "Background.png", destFolderPath);
+                imageEncodingEngine.EncodeAndSave(thumb173.Brush, "Background.png", destFolderPath, thumb173.Width, thumb173.Height);
             }
 
-            if (thumbnails.ContainsKey(62))
+            var thumb62 = thumbnails.FirstOrDefault(t => t.Key == 62);
+            if (thumb62 != null)
             {
-                imageEncodingEngine.EncodeAndSave(thumbnails[62].Image, "ApplicationIcon.png", destFolderPath);
+                imageEncodingEngine.EncodeAndSave(thumb62.Brush, "ApplicationIcon.png", destFolderPath, thumb62.Width, thumb62.Height);
             }
 
             CompleteNotice.Content = CompleteNoticeMessage;
@@ -231,8 +232,8 @@
 
             foreach (var thumbnail in thumbnails)
             {
-                thumbnail.Value.Title.Visibility = Visibility.Hidden;
-                thumbnail.Value.Image.Fill = null;
+                thumbnail.TitleVisibility = Visibility.Hidden;
+                thumbnail.Brush = null;
             }
 
             myCanvas.Children.Remove(rectFrame);
@@ -314,7 +315,7 @@
 
             foreach (var thumbnail in thumbnails)
             {
-                thumbnail.Value.Image.Fill = brush;
+                thumbnail.Brush = brush;
             }
 
             DisplayIconNames();
