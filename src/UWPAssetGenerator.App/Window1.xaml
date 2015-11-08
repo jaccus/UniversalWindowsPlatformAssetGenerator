@@ -28,19 +28,18 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="800" />
-            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="500" />
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <Button Margin="10,2,10,2" Height="23" Name="Open" Width="91" Click="Open_Click" >Open Image</Button>
             <Button Margin="10,2,10,2" Height="23" Name="Save" Width="91" Click="Save_Click" >Save Icons</Button>
             <Label Name="projectLabel" Margin="10,2,10,2">Project Name</Label>
             <TextBox Name="projectName" Margin="2,2,10,2" Width="150" TextChanged="ProjectNameTextChanged" />
-            
         </StackPanel>
         <Canvas Name="myCanvas" Width="800" Height="600" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1"  PreviewMouseLeftButtonDown="BackgroundMouseLeftButtonDown" PreviewMouseMove="BackgroundMouseMove" PreviewMouseLeftButtonUp="MyCanvasOnPreviewMouseLeftButtonUp"  >
             <Image Name="grayImage" Canvas.Top="0" Canvas.Left="0" Width="800" Height="600" MouseLeftButtonDown="BackgroundMouseLeftButtonDown" MouseMove="BackgroundMouseMove" HorizontalAlignment="Left" VerticalAlignment="Top" SizeChanged="BackgroundSizeChanged"  />
         </Canvas>
-        <ItemsControl Name="iconPanel" Grid.RowSpan="2" Grid.Column="1" HorizontalAlignment="Right" Width="220" RenderTransformOrigin="0.5,0.5">
+        <ItemsControl Name="iconPanel" Grid.RowSpan="2" Grid.Column="1" HorizontalAlignment="Left"  RenderTransformOrigin="0.5,0.5">
             <ItemsControl.RenderTransform>
         		<TransformGroup>
         			<ScaleTransform/>

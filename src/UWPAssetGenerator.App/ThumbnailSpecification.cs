@@ -4,11 +4,11 @@ namespace UWPAssetGenerator.App
 
     public class ThumbnailSpecification
     {
-        public ThumbnailSpecification(int width, int height, string fileName)
+        public ThumbnailSpecification(int width, int height, string fileName = null)
         {
             Width = width;
             Height = height;
-            FileName = fileName;
+            FileName = fileName ?? DefaultFileName;
         }
 
         public int Width { get; private set; }
@@ -18,5 +18,7 @@ namespace UWPAssetGenerator.App
         public string FileName { get; private set; }
 
         public List<string> ExtraCopyFileNames { get; set; }
+
+        private string DefaultFileName => $"{Width}x{Height}.png";
     }
 }
