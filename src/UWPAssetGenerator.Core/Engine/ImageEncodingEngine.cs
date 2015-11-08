@@ -5,21 +5,23 @@
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
 
+    using UWPAssetGenerator.Core.Types;
+
     public class ImageEncodingEngine
     {
-        public void EncodeAndSave(ImageBrush icon, string name, string filePath, int iconWidth, int iconHeight)
+        public void EncodeAndSave(ThumbnailSaveSpecification thumbnail, string destFolderName)
         {
-            var rtb = new RenderTargetBitmap(iconWidth, iconHeight, 96.0, 96.0, PixelFormats.Pbgra32);
+            var rtb = new RenderTargetBitmap(thumbnail.Width, thumbnail.Height, 96.0, 96.0, PixelFormats.Pbgra32);
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                dc.DrawRectangle(icon, null, new Rect(new Point(), new Size(iconWidth, iconHeight)));
+                dc.DrawRectangle(thumbnail.Brush, null, new Rect(new Point(), new Size(thumbnail.Width, thumbnail.Height)));
             }
 
             rtb.Render(dv);
             var bmf = BitmapFrame.Create(rtb);
             bmf.Freeze();
-            var fileOut = filePath + "\\" + name;
+            var fileOut = destFolderName + "\\" + thumbnail.FileName;
             using (var stream = new FileStream(fileOut, FileMode.Create))
             {
                 var encoder = new PngBitmapEncoder();

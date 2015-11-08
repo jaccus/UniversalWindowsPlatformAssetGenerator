@@ -14,6 +14,7 @@
 
     using UWPAssetGenerator.App.ViewModels;
     using UWPAssetGenerator.Core.Engine;
+    using UWPAssetGenerator.Core.Types;
 
     public partial class Window1
     {
@@ -36,7 +37,15 @@
 
             foreach (var thumbnailSpec in Bootstrap.LoadThumbnailsSpecification())
             {
-                thumbnails.Add(new ThumbnailViewModel { FileName = thumbnailSpec.FileName, Title = thumbnailSpec.FileName, Height = thumbnailSpec.Height, Width = thumbnailSpec.Width });
+                thumbnails.Add(
+                    new ThumbnailViewModel
+                        {
+                            FileName = thumbnailSpec.FileName,
+                            Title = thumbnailSpec.FileName,
+                            Height = thumbnailSpec.Height,
+                            Width = thumbnailSpec.Width,
+                            ExtraCopyFileNames = thumbnailSpec.ExtraCopyFileNames
+                        });
             }
             iconPanel.ItemsSource = thumbnails;
         }
@@ -136,7 +145,6 @@
 
         private void DisplayIconNames()
         {
-
             foreach (var thumbnail in thumbnails)
             {
                 thumbnail.Title = thumbnail.FileName;
@@ -166,27 +174,36 @@
 
             Directory.CreateDirectory(destFolderPath);
 
-            foreach (var thumbnail in thumbnails)
+            foreach (var thumbnailToSave in AllThumbnailsToSave())
             {
-                imageEncodingEngine.EncodeAndSave(thumbnail.Brush, thumbnail.Title, destFolderPath, thumbnail.Width, thumbnail.Height);
-            }
-
-            var thumb173 = thumbnails.FirstOrDefault(t => t.FileName == "173x173.png");
-            if (thumb173 != null)
-            {
-                imageEncodingEngine.EncodeAndSave(thumb173.Brush, "Background.png", destFolderPath, thumb173.Width, thumb173.Height);
-            }
-
-            var thumb62 = thumbnails.FirstOrDefault(t => t.FileName == "62x62.png");
-            if (thumb62 != null)
-            {
-                imageEncodingEngine.EncodeAndSave(thumb62.Brush, "ApplicationIcon.png", destFolderPath, thumb62.Width, thumb62.Height);
+                imageEncodingEngine.EncodeAndSave(thumbnailToSave, destFolderPath);
             }
 
             CompleteNotice.Content = CompleteNoticeMessage;
             CompleteNotice.Visibility = Visibility.Visible;
 
             BeginStoryboard((Storyboard)FindResource("Storyboard1"));
+        }
+
+        private IEnumerable<ThumbnailSaveSpecification> AllThumbnailsToSave()
+        {
+            var regularThumbsToSave = thumbnails.Select(t => new ThumbnailSaveSpecification { Width = t.Width, Height = t.Height, FileName = t.FileName, Brush = t.Brush });
+            var extraCopiesToSave = GetExtraCopiesToSave(thumbnails);
+            return regularThumbsToSave.Union(extraCopiesToSave);
+        }
+
+        private static IEnumerable<ThumbnailSaveSpecification> GetExtraCopiesToSave(IEnumerable<ThumbnailViewModel> thumbs)
+        {
+            foreach (var thumb in thumbs)
+            {
+                if (thumb.ExtraCopyFileNames != null)
+                {
+                    foreach (var extraFileName in thumb.ExtraCopyFileNames)
+                    {
+                        yield return new ThumbnailSaveSpecification { Brush = thumb.Brush, FileName = extraFileName, Width = thumb.Width, Height = thumb.Height };
+                    }
+                }
+            }
         }
 
         private string BuildDestFolderPath()

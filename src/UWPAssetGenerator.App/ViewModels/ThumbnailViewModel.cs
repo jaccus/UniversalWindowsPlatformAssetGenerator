@@ -1,5 +1,6 @@
 namespace UWPAssetGenerator.App.ViewModels
 {
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows;
@@ -53,6 +54,8 @@ namespace UWPAssetGenerator.App.ViewModels
                 OnPropertyChanged(nameof(Brush));
             }
         }
+
+        public List<string> ExtraCopyFileNames { get; set; }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
