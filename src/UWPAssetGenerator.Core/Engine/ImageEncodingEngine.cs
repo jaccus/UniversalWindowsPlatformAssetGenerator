@@ -7,14 +7,13 @@
 
     public class ImageEncodingEngine
     {
-        public void EncodeAndSave(FrameworkElement icon, string name, string filePath)
+        public void EncodeAndSave(ImageBrush icon, string name, string filePath, int iconWidth, int iconHeight)
         {
-            var rtb = new RenderTargetBitmap((int)icon.Width, (int)icon.Height, 96.0, 96.0, PixelFormats.Pbgra32);
+            var rtb = new RenderTargetBitmap(iconWidth, iconHeight, 96.0, 96.0, PixelFormats.Pbgra32);
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen())
             {
-                var vb = new VisualBrush(icon);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), new Size((int)icon.Width, (int)icon.Height)));
+                dc.DrawRectangle(icon, null, new Rect(new Point(), new Size(iconWidth, iconHeight)));
             }
 
             rtb.Render(dv);
