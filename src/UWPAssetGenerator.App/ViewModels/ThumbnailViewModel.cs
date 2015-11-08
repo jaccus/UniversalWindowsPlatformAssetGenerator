@@ -16,7 +16,7 @@ namespace UWPAssetGenerator.App.ViewModels
             TitleVisibility = Visibility.Visible;
         }
 
-        public int Key { get; set; }
+        public string Key { get; set; }
 
         public int Width { get; set; }
 

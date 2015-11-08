@@ -21,7 +21,6 @@
 
         private readonly Rectangle rectFrame = new Rectangle();
         private readonly ImageEncodingEngine imageEncodingEngine = new ImageEncodingEngine();
-        private readonly List<int> thumbnailSizes = new List<int> { 200, 173, 99, 62 };
         private readonly List<ThumbnailViewModel> thumbnails = new List<ThumbnailViewModel>();
 
         private bool isPasted;
@@ -35,10 +34,10 @@
         {
             InitializeComponent();
 
-            foreach (var thumbnailSize in thumbnailSizes)
+            foreach (var thumbnailSize in Bootstrap.LoadThumbnailSizes())
             {
-                var key = thumbnailSize;
-                thumbnails.Add(new ThumbnailViewModel { Key = key, Title = BuildFileNameForKey(key), Height = thumbnailSize, Width = thumbnailSize });
+                var key = $"{thumbnailSize.Width}x{thumbnailSize.Height}";
+                thumbnails.Add(new ThumbnailViewModel { Key = key, Title = BuildFileNameForKey(key), Height = thumbnailSize.Height, Width = thumbnailSize.Width });
             }
             iconPanel.ItemsSource = thumbnails;
         }
@@ -146,7 +145,7 @@
             }
         }
 
-        private string BuildFileNameForKey(int key)
+        private string BuildFileNameForKey(string key)
         {
             return $"{projectName.Text}_{key}.png";
         }
@@ -178,13 +177,13 @@
                 imageEncodingEngine.EncodeAndSave(thumbnail.Brush, thumbnail.Title, destFolderPath, thumbnail.Width, thumbnail.Height);
             }
 
-            var thumb173 = thumbnails.FirstOrDefault(t => t.Key == 173);
+            var thumb173 = thumbnails.FirstOrDefault(t => t.Key == "173x173");
             if (thumb173 != null)
             {
                 imageEncodingEngine.EncodeAndSave(thumb173.Brush, "Background.png", destFolderPath, thumb173.Width, thumb173.Height);
             }
 
-            var thumb62 = thumbnails.FirstOrDefault(t => t.Key == 62);
+            var thumb62 = thumbnails.FirstOrDefault(t => t.Key == "62x62");
             if (thumb62 != null)
             {
                 imageEncodingEngine.EncodeAndSave(thumb62.Brush, "ApplicationIcon.png", destFolderPath, thumb62.Width, thumb62.Height);
