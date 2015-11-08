@@ -34,10 +34,9 @@
         {
             InitializeComponent();
 
-            foreach (var thumbnailSize in Bootstrap.LoadThumbnailSizes())
+            foreach (var thumbnailSpec in Bootstrap.LoadThumbnailsSpecification())
             {
-                var key = $"{thumbnailSize.Width}x{thumbnailSize.Height}";
-                thumbnails.Add(new ThumbnailViewModel { Key = key, Title = BuildFileNameForKey(key), Height = thumbnailSize.Height, Width = thumbnailSize.Width });
+                thumbnails.Add(new ThumbnailViewModel { FileName = thumbnailSpec.FileName, Title = thumbnailSpec.FileName, Height = thumbnailSpec.Height, Width = thumbnailSpec.Width });
             }
             iconPanel.ItemsSource = thumbnails;
         }
@@ -140,14 +139,9 @@
 
             foreach (var thumbnail in thumbnails)
             {
-                thumbnail.Title = BuildFileNameForKey(thumbnail.Key);
+                thumbnail.Title = thumbnail.FileName;
                 thumbnail.TitleVisibility = Visibility.Visible;
             }
-        }
-
-        private string BuildFileNameForKey(string key)
-        {
-            return $"{projectName.Text}_{key}.png";
         }
 
         private void ProjectNameTextChanged(object sender, TextChangedEventArgs e)
@@ -177,13 +171,13 @@
                 imageEncodingEngine.EncodeAndSave(thumbnail.Brush, thumbnail.Title, destFolderPath, thumbnail.Width, thumbnail.Height);
             }
 
-            var thumb173 = thumbnails.FirstOrDefault(t => t.Key == "173x173");
+            var thumb173 = thumbnails.FirstOrDefault(t => t.FileName == "173x173.png");
             if (thumb173 != null)
             {
                 imageEncodingEngine.EncodeAndSave(thumb173.Brush, "Background.png", destFolderPath, thumb173.Width, thumb173.Height);
             }
 
-            var thumb62 = thumbnails.FirstOrDefault(t => t.Key == "62x62");
+            var thumb62 = thumbnails.FirstOrDefault(t => t.FileName == "62x62.png");
             if (thumb62 != null)
             {
                 imageEncodingEngine.EncodeAndSave(thumb62.Brush, "ApplicationIcon.png", destFolderPath, thumb62.Width, thumb62.Height);
