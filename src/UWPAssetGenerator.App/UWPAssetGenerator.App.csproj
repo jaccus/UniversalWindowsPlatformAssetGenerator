@@ -102,6 +102,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="ScaledThumbnailDefinition.cs" />
     <Compile Include="ThumbnailSpecification.cs" />
     <Compile Include="ViewModels\ThumbnailViewModel.cs" />
     <Compile Include="Window1.xaml.cs">

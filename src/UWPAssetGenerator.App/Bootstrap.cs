@@ -13,24 +13,26 @@
         {
             return new List<ThumbnailSpecification>
                        {
-                           new ThumbnailSpecification(71, 71),
-                           new ThumbnailSpecification(150, 150),
-                           new ThumbnailSpecification(310, 150),
-                           new ThumbnailSpecification(310, 310),
-                           new ThumbnailSpecification(44, 44),
-                           new ThumbnailSpecification(50, 50),
-                           new ThumbnailSpecification(620, 300),
+                           new ThumbnailSpecification(71, 71, "Square71x71Logo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(150, 150, "Square150x150Logo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(310, 150, "Wide310x150Logo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(310, 310, "Square310x310Logo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(44, 44, "Square44x44Logo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(50, 50, "StoreLogo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(24, 24, "BadgeLogo") { ScaledImages = DefaultScaledImages() },
+                           new ThumbnailSpecification(620, 300, "SplashScreen") { ScaledImages = DefaultScaledImages() },
                        };
         }
 
-        private static List<ThumbnailSpecification> Wp8ThumbnailSpecifications()
+        private static List<ScaledThumbnailDefinition> DefaultScaledImages()
         {
-            return new List<ThumbnailSpecification>
+            return new List<ScaledThumbnailDefinition>
                        {
-                           new ThumbnailSpecification(200, 200, "200x200.png"),
-                           new ThumbnailSpecification(173, 173, "173x173.png") { ExtraCopyFileNames = new List<string> { "Background.png" } },
-                           new ThumbnailSpecification(99, 99, "99x99.png"),
-                           new ThumbnailSpecification(62, 62, "62x62.png") { ExtraCopyFileNames = new List<string> { "ApplicationIcon.png" } },
+                           new ScaledThumbnailDefinition { ScalePercent = 400, FileNameSuffix = ".scale-400" },
+                           new ScaledThumbnailDefinition { ScalePercent = 200, FileNameSuffix = ".scale-200" },
+                           new ScaledThumbnailDefinition { ScalePercent = 150, FileNameSuffix = ".scale-150" },
+                           new ScaledThumbnailDefinition { ScalePercent = 125, FileNameSuffix = ".scale-125" },
+                           new ScaledThumbnailDefinition { ScalePercent = 100, FileNameSuffix = ".scale-100" },
                        };
         }
     }

@@ -19,6 +19,8 @@ namespace UWPAssetGenerator.App
 
         public List<string> ExtraCopyFileNames { get; set; }
 
+        public List<ScaledThumbnailDefinition> ScaledImages { get; set; }
+
         private string DefaultFileName => $"{Width}x{Height}.png";
     }
 }

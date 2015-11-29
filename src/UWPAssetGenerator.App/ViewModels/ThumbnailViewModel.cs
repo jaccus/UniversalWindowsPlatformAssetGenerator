@@ -57,6 +57,8 @@ namespace UWPAssetGenerator.App.ViewModels
 
         public List<string> ExtraCopyFileNames { get; set; }
 
+        public List<ScaledThumbnailDefinition> ScaledImages { get; set; }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

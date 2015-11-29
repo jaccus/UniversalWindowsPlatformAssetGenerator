@@ -21,7 +21,7 @@
             rtb.Render(dv);
             var bmf = BitmapFrame.Create(rtb);
             bmf.Freeze();
-            var fileOut = destFolderName + "\\" + thumbnail.FileName;
+            var fileOut = $"{destFolderName}\\{thumbnail.FileName}.png";
             using (var stream = new FileStream(fileOut, FileMode.Create))
             {
                 var encoder = new PngBitmapEncoder();

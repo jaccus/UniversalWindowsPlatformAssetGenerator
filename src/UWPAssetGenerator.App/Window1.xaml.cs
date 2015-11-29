@@ -44,7 +44,8 @@
                             Title = thumbnailSpec.FileName,
                             Height = thumbnailSpec.Height,
                             Width = thumbnailSpec.Width,
-                            ExtraCopyFileNames = thumbnailSpec.ExtraCopyFileNames
+                            ExtraCopyFileNames = thumbnailSpec.ExtraCopyFileNames,
+                            ScaledImages = thumbnailSpec.ScaledImages
                         });
             }
             iconPanel.ItemsSource = thumbnails;
@@ -189,7 +190,26 @@
         {
             var regularThumbsToSave = thumbnails.Select(t => new ThumbnailSaveSpecification { Width = t.Width, Height = t.Height, FileName = t.FileName, Brush = t.Brush });
             var extraCopiesToSave = GetExtraCopiesToSave(thumbnails);
-            return regularThumbsToSave.Union(extraCopiesToSave);
+            var scaledCopiesToSave = GetScaledCopiesToSave(thumbnails);
+            return regularThumbsToSave.Union(extraCopiesToSave).Union(scaledCopiesToSave);
+        }
+
+        private IEnumerable<ThumbnailSaveSpecification> GetScaledCopiesToSave(List<ThumbnailViewModel> thumbs)
+        {
+            foreach (var thumb in thumbs)
+            {
+                if (thumb.ScaledImages != null)
+                {
+                    foreach (var scaledImage in thumb.ScaledImages)
+                    {
+                        var scaledBrush = thumb.Brush;
+                        var scaledThumbFileName = thumb.FileName + scaledImage.FileNameSuffix;
+                        var scaledWidth = thumb.Width;
+                        var scaledHeight = thumb.Height;
+                        yield return new ThumbnailSaveSpecification { Brush = scaledBrush, FileName = scaledThumbFileName, Width = scaledWidth, Height = scaledHeight };
+                    }
+                }
+            }
         }
 
         private static IEnumerable<ThumbnailSaveSpecification> GetExtraCopiesToSave(IEnumerable<ThumbnailViewModel> thumbs)
